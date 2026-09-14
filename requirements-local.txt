@@ -1,0 +1,14 @@
+# Development dependencies for the API-backed local environment.
+-r requirements.txt
+
+# Imported by swe_bench/harness.py but absent from requirements.txt.
+# Version 5 removed swebench.harness.test_spec, which MGM imports.
+swebench==4.1.0
+
+# Debugger, analysis scripts, and optional SOCKS proxy support.
+debugpy
+matplotlib
+pillow
+scikit-learn
+httpx[socks]
+requests[socks]

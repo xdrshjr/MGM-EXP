@@ -23,6 +23,7 @@ import hgm_utils
 from config import load_config
 from tree import Node
 from utils.common_utils import load_json_file
+from utils.container_runtime import require_container_runtime
 from utils.docker_utils import copy_src_files, setup_logger
 from utils.evo_utils import load_hgm_metadata
 
@@ -290,6 +291,11 @@ def main():
     parser.set_defaults(polyglot=None, cool_down=None, full_eval=None)
 
     args = parser.parse_args()
+
+    try:
+        require_container_runtime()
+    except RuntimeError as error:
+        parser.error(str(error))
 
     overrides = {}
     if args.max_task_evals is not None:

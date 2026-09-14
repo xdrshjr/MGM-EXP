@@ -31,6 +31,14 @@ polyglot/predictions/
 
 .secrets/
 
+# Local credentials and machine-specific workspace files
+/.env
+/.env.*
+!/.env*.example
+/run-params.md
+/.idea/
+/.bug-diagnosis/
+
 # Local cache & eval outputs (never push upstream)
 /.cache/
 /polyglot_eval_outputs/

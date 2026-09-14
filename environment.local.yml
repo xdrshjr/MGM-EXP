@@ -1,0 +1,13 @@
+name: mgm
+channels:
+  - defaults
+dependencies:
+  - python=3.11.15
+  - pip
+  - pip:
+      - -r requirements-local.lock.txt
+variables:
+  PYTHONUTF8: "1"
+  PYTHONNOUSERSITE: "1"
+  PYTHONUNBUFFERED: "1"
+  HGM_LLM_MODEL_ID: deepseek-v4-flash

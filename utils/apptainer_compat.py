@@ -213,6 +213,22 @@ def _dockerfile_post_script(dockerfile_text: str) -> str:
     return "\n".join(lines)
 
 
+def _dockerfile_post_exec_args(sandbox: Path) -> List[str]:
+    """Build arguments for running Dockerfile commands in a sandbox."""
+    args = ["exec"]
+    if USE_FAKEROOT_BUILD:
+        args.append("--fakeroot")
+    args.extend(
+        [
+            "--writable",
+            str(sandbox),
+            "bash",
+            "/dockerfile-post.sh",
+        ]
+    )
+    return args
+
+
 def _dockerfile_env_script(env_lines: List[str]) -> str:
     """Persist Dockerfile ENV lines into the Apptainer runtime environment."""
     lines = ["#!/bin/sh"]
@@ -310,25 +326,19 @@ def _build_sif_from_dockerfile(
         post_path.write_text("\n".join(post_lines), encoding="utf-8")
         if run_lines or env_lines:
             logs.append({"stream": "Running Dockerfile post script in sandbox\n"})
-            exec_args = [
-                "exec",
-                "--writable",
-                str(sandbox),
-                "bash",
-                "/dockerfile-post.sh",
-            ]
+            exec_args = _dockerfile_post_exec_args(sandbox)
             proc = _run_apptainer(exec_args, timeout=timeout, check=False)
-            logs.append(
-                {
-                    "stream": (proc.stdout or proc.stderr or b"").decode(
-                        "utf-8", errors="replace"
-                    )
-                }
-            )
+            post_output = b"".join(
+                output for output in (proc.stdout, proc.stderr) if output
+            ).decode("utf-8", errors="replace")
+            logs.append({"stream": post_output})
             if proc.returncode != 0:
+                message = f"apptainer Dockerfile post script failed for {tag}"
+                if post_output.strip():
+                    message = f"{message}\n{post_output.strip()[-4000:]}"
                 raise container_errors.BuildError(
-                    f"apptainer Dockerfile post script failed for {tag}",
-                    logs[-1]["stream"],
+                    message,
+                    post_output,
                 )
 
         if env_lines:

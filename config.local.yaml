@@ -1,0 +1,35 @@
+# Small API-backed debug run. Full execution requires WSL2/Linux + Apptainer.
+llm:
+  self_improve_llm: deepseek-v4-flash
+  downstream_llm: deepseek-v4-flash
+  diagnose_llm: deepseek-v4-flash
+
+optimization:
+  alpha: 0.6
+  beta: 1.0
+  cool_down: false
+  eval_random_level: 0.0
+  failed_pool_boost: 1.0
+  n_pseudo_descendant_evals: 10000
+
+execution:
+  max_workers: 1
+  self_improve_timeout: 3600
+  evaluation_timeout: 3600
+  # This does NOT limit the initial 60-task evaluation in hgm.py.
+  max_task_evals: 5
+
+evaluation:
+  full_eval: false
+  polyglot: false
+
+self_improve_strategy:
+  weight_a: 0.1
+  weight_b: 0.45
+  weight_c: 0.45
+  strategy_b_min_node_evals: 2
+
+paths:
+  output_dir: output_local_debug
+  continue_from: null
+  initial_agent_name: local_debug_agent

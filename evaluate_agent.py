@@ -4,6 +4,7 @@ import os
 import swe_bench.harness
 from datasets import load_dataset
 from llm import resolve_llm_model
+from utils.container_runtime import require_container_runtime
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -15,6 +16,11 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=10, help='Number of parallel workers for evaluation')
     parser.add_argument('--n_tasks', type=int, default=None, help='Number of tasks to evaluate on')
     args = parser.parse_args()
+
+    try:
+        require_container_runtime()
+    except RuntimeError as error:
+        parser.error(str(error))
 
     id = [task['instance_id'] for task in load_dataset(f'princeton-nlp/SWE-bench_{args.split}')['test']]
     if args.n_tasks is not None:
